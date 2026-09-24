@@ -121,17 +121,18 @@
             margin-top: 20px;
         }
 
+        /* Layout Vertical de la Simulación */
         .simulation-area {
             display: flex;
-            gap: 30px;
-            align-items: flex-start;
+            flex-direction: column; /* Cambiado a vertical */
+            align-items: center;    /* Centrado horizontal */
+            gap: 15px;              /* Espaciado entre bloques */
             background: white;
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 900px;
-            justify-content: space-around;
+            max-width: 800px;
             position: relative;
             box-sizing: border-box;
             margin-top: 20px;
@@ -139,26 +140,25 @@
 
         .simulation-area h3 {
             margin-top: 0;
-            margin-bottom: 30px;
-            height: 25px; 
+            margin-bottom: 20px;
             text-align: center;
             font-size: 1.1em;
             color: #2c3e50;
         }
 
-        /* Contenedores de las columnas */
+        /* Contenedores de las secciones (sin ancho fijo ahora) */
         .protein-container, .follicle-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 180px; 
+            width: 100%; 
         }
 
-        /* Flechas */
+        /* Flechas verticales */
         .arrow {
             font-size: 40px;
             color: #bdc3c7;
-            margin-top: 80px; 
+            margin: 10px 0; /* Espaciado arriba y abajo */
         }
 
         /* Estilos del Pacman (Proteína) */
@@ -236,7 +236,7 @@
     
     <h2>1) Instrucciones</h2>
     <div class="instruction-box">
-        <p><strong>Clase:</strong> El ADN es como el código fuente. Haz clic en el código genético para mutarlo. Solo puedes hacer una mutación a la vez.</p>
+        <p><strong>Clase:</strong> El ADN es como el código fuente. Haz clic en un nucleótido para mutarlo. Solo puedes hacer una mutación a la vez.</p>
         <p>Hay 10 mutaciones <em>silenciosas</em> (sin cambio visual), 10 mutaciones de <em>sentido equivocado</em> (cambio en la proteína y color) y 10 mutaciones <em>sin sentido</em> (proteína rota).</p>
     </div>
 
@@ -255,16 +255,16 @@
 
     <div class="simulation-area">
         
-        <!-- Columna 1: Proteína -->
+        <!-- Bloque 1: Proteína -->
         <div class="protein-container">
             <h3>Proteína (MC1R)</h3>
             <div id="pacman-shape" class="pacman"></div>
         </div>
 
-        <!-- Flecha 1 -->
-        <div class="arrow">➔</div>
+        <!-- Flecha 1 apuntando abajo -->
+        <div class="arrow">↓</div>
 
-        <!-- Columna 2: Melanina -->
+        <!-- Bloque 2: Melanina -->
         <div class="protein-container">
             <h3>Producción Melanina</h3>
             <div id="melanin-output" class="melanin-container">
@@ -272,10 +272,10 @@
             </div>
         </div>
 
-        <!-- Flecha 2 -->
-        <div class="arrow">➔</div>
+        <!-- Flecha 2 apuntando abajo -->
+        <div class="arrow">↓</div>
 
-        <!-- Columna 3: Cabellos -->
+        <!-- Bloque 3: Cabellos -->
         <div class="follicle-container">
             <h3>Fenotipo: Cabello</h3>
             
