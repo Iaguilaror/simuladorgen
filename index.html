@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dogma Central - Simulador Interactivo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        /* Estilo para los nuevos subtítulos */
+        h2 {
+            color: #34495e;
+            width: 100%;
+            max-width: 800px;
+            text-align: left;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .instruction-box {
+            width: 100%;
+            max-width: 800px;
+            background: #ecf0f1;
+            padding: 15px 25px;
+            border-radius: 8px;
+            border-left: 5px solid #2980b9;
+            box-sizing: border-box;
+        }
+
+        .sequence-container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        /* Selectores de nucleótidos */
+        select.nucleotide {
+            appearance: none;
+            background: transparent;
+            border: 1px solid transparent;
+            font-size: 24px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #2980b9;
+            padding: 5px;
+            margin: 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        select.nucleotide:hover {
+            border: 1px solid #bdc3c7;
+            background: #ecf0f1;
+        }
+
+        select.nucleotide.mutated {
+            color: #e74c3c;
+            border-bottom: 2px solid #e74c3c;
+        }
+
+        .simulate-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            margin-bottom: 20px;
+            margin-top: 5px;
+        }
+
+        .simulate-btn:hover {
+            background-color: #2ecc71;
+        }
+        
+        .simulate-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Mensaje de Error */
+        .error-message {
+            display: none;
+            background-color: #000;
+            color: #e74c3c;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #e74c3c;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+            margin-bottom: 20px; 
+            margin-top: 20px;
+        }
+
+        .simulation-area {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 900px;
+            justify-content: space-around;
+            position: relative;
+            box-sizing: border-box;
+            margin-top: 20px;
+        }
+
+        .simulation-area h3 {
+            margin-top: 0;
+            margin-bottom: 30px;
+            height: 25px; 
+            text-align: center;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+
+        /* Contenedores de las columnas */
+        .protein-container, .follicle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 180px; 
+        }
+
+        /* Flechas */
+        .arrow {
+            font-size: 40px;
+            color: #bdc3c7;
+            margin-top: 80px; 
+        }
+
+        /* Estilos del Pacman (Proteína) */
+        .pacman {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            position: relative;
+            transition: clip-path 0.5s ease;
+        }
+
+        /* Estilos de la Melanina */
+        .melanin-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100px;
+            height: 100px;
+            align-content: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .melanin {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white; 
+            box-sizing: border-box; 
+            transition: transform 0.4s ease-out; 
+            position: absolute; 
+        }
+
+        .melanin.black { background-color: #2c3e50; }
+        .melanin.yellow { background-color: #f1c40f; }
+
+        /* Estilos de los Folículos (4 cabellos) */
+        .hairs-wrapper {
+            display: flex;
+            gap: 15px; 
+            justify-content: center;
+        }
+
+        .follicle-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hair {
+            width: 12px;
+            height: 120px;
+            background-color: #2c3e50;
+            border: 2px solid white; 
+            box-sizing: border-box; 
+            transition: background-color 0.5s ease;
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            z-index: 2; 
+        }
+
+        .root {
+            width: 25px;
+            height: 25px;
+            background-color: #e0ac69;
+            border-radius: 0 0 50px 50px;
+            position: relative;
+            z-index: 1;
+            margin-top: -5px; 
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Simulador de Expresión Génica</h1>
+    
+    <h2>1) Instrucciones</h2>
+    <div class="instruction-box">
+        <p><strong>Clase:</strong> El ADN es como el código fuente. Haz clic en el código genético para mutarlo. Solo puedes hacer una mutación a la vez.</p>
+        <p>Hay 10 mutaciones <em>silenciosas</em> (sin cambio visual), 10 mutaciones de <em>sentido equivocado</em> (cambio en la proteína y color) y 10 mutaciones <em>sin sentido</em> (proteína rota).</p>
+    </div>
+
+    <h2>2) Cambia el código genético</h2>
+    <div id="sequence-box" class="sequence-container">
+        <!-- Los nucleótidos se generarán aquí -->
+    </div>
+
+    <h2>3) Click aquí</h2>
+    <button id="simulate-btn" class="simulate-btn" onclick="runSimulation ( )">Simulate [Compile & Run]</button>
+
+    <!-- El mensaje de error -->
+    <div id="error-console" class="error-message">
+        [FATAL ERROR: PROTEIN FOLDING FAILED]
+    </div>
+
+    <div class="simulation-area">
+        
+        <!-- Columna 1: Proteína -->
+        <div class="protein-container">
+            <h3>Proteína (MC1R)</h3>
+            <div id="pacman-shape" class="pacman"></div>
+        </div>
+
+        <!-- Flecha 1 -->
+        <div class="arrow">➔</div>
+
+        <!-- Columna 2: Melanina -->
+        <div class="protein-container">
+            <h3>Producción Melanina</h3>
+            <div id="melanin-output" class="melanin-container">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Flecha 2 -->
+        <div class="arrow">➔</div>
+
+        <!-- Columna 3: Cabellos -->
+        <div class="follicle-container">
+            <h3>Fenotipo: Cabello</h3>
+            
+            <div class="hairs-wrapper">
+                <div class="follicle-unit">
+                    <div class="hair"></div>
+                    <div class="root"></div>
+                </div>
+                <div class="follicle-unit">
+                    <div class="hair"></div>
+                    <div class="root"></div>
+                </div>
+                <div class="follicle-unit">
+                    <div class="hair"></div>
+                    <div class="root"></div>
+                </div>
+                <div class="follicle-unit">
+                    <div class="hair"></div>
+                    <div class="root"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const NUCLEOTIDE_ALPHABET = [ 'A', 'C', 'G', 'T' ];
+        const SEQUENCE_LENGTH = 30;
+        
+        let originalSequence = [];
+        let mutationEffects = [];
+
+        // Configuración inicial al cargar la página
+        function initializeSimulator ( ) {
+            const sequenceBox = document.getElementById( 'sequence-box' );
+            
+            for ( let i = 0; i < SEQUENCE_LENGTH; i++ ) {
+                const randomNucleotide = NUCLEOTIDE_ALPHABET[ Math.floor( Math.random( ) * NUCLEOTIDE_ALPHABET.length ) ];
+                originalSequence.push( randomNucleotide );
+            }
+
+            for ( let i = 0; i < 10; i++ ) {
+                mutationEffects.push( 'silent' );
+                mutationEffects.push( 'missense' );
+                mutationEffects.push( 'nonsense' );
+            }
+            
+            mutationEffects = mutationEffects.sort( ( ) => Math.random( ) - 0.5 );
+
+            for ( let i = 0; i < SEQUENCE_LENGTH; i++ ) {
+                const selectElement = document.createElement( 'select' );
+                selectElement.classList.add( 'nucleotide' );
+                selectElement.id = 'pos-' + i;
+                
+                NUCLEOTIDE_ALPHABET.forEach( ( nucleotide ) => {
+                    const option = document.createElement( 'option' );
+                    option.value = nucleotide;
+                    option.text = nucleotide;
+                    if ( nucleotide === originalSequence[ i ] ) {
+                        option.selected = true;
+                    }
+                    selectElement.appendChild( option );
+                });
+
+                selectElement.addEventListener( 'change', function ( event ) {
+                    for ( let j = 0; j < SEQUENCE_LENGTH; j++ ) {
+                        if ( i !== j ) { 
+                            const otherSelector = document.getElementById( 'pos-' + j );
+                            otherSelector.value = originalSequence[ j ]; 
+                            otherSelector.classList.remove( 'mutated' ); 
+                        }
+                    }
+
+                    const currentVal = event.target.value;
+                    if ( currentVal !== originalSequence[ i ] ) {
+                        event.target.classList.add( 'mutated' );
+                    } else {
+                        event.target.classList.remove( 'mutated' );
+                    }
+                });
+
+                sequenceBox.appendChild( selectElement );
+            }
+
+            drawPhenotype( {
+                numBlackMelanin: 4, 
+                numYellowMelanin: 1, 
+                hairColor: '#2c3e50', 
+                pacmanStyle: 'normal', 
+                pacmanColor: '#8b4513', 
+                showFatalError: false
+            } );
+        }
+
+        // Función principal al presionar Simulate
+        function runSimulation ( ) {
+            let containsNonsense = false;
+            let containsMissense = false;
+
+            for ( let i = 0; i < SEQUENCE_LENGTH; i++ ) {
+                const selector = document.getElementById( 'pos-' + i );
+                const currentNucleotide = selector.value;
+                
+                if ( currentNucleotide !== originalSequence[ i ] ) {
+                    const effectType = mutationEffects[ i ];
+                    if ( effectType === 'nonsense' ) {
+                        containsNonsense = true;
+                    } else if ( effectType === 'missense' ) {
+                        containsMissense = true;
+                    }
+                }
+            }
+
+            if ( containsNonsense ) {
+                drawPhenotype( {
+                    numBlackMelanin: 0, 
+                    numYellowMelanin: 0, 
+                    hairColor: '#bdc3c7', 
+                    pacmanStyle: 'broken', 
+                    pacmanColor: '#95a5a6', 
+                    showFatalError: true
+                } );
+            } else if ( containsMissense ) {
+                drawPhenotype( {
+                    numBlackMelanin: 1, 
+                    numYellowMelanin: 4, 
+                    hairColor: '#f39c12', 
+                    pacmanStyle: 'missense', 
+                    pacmanColor: '#ffd700', 
+                    showFatalError: false
+                } );
+            } else {
+                drawPhenotype( {
+                    numBlackMelanin: 4, 
+                    numYellowMelanin: 1, 
+                    hairColor: '#2c3e50', 
+                    pacmanStyle: 'normal', 
+                    pacmanColor: '#8b4513', 
+                    showFatalError: false
+                } );
+            }
+        }
+
+        // Función para renderizar el resultado visual
+        function drawPhenotype ( config ) {
+            
+            const errorConsole = document.getElementById( 'error-console' );
+            errorConsole.style.display = config.showFatalError ? 'block' : 'none';
+
+            const pacman = document.getElementById( 'pacman-shape' );
+            
+            if ( config.pacmanStyle === 'broken' ) {
+                pacman.style.background = config.pacmanColor; 
+                pacman.style.clipPath = 'polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%)';
+            
+            } else {
+                let apertureDegrees;
+                if ( config.pacmanStyle === 'missense' ) {
+                    apertureDegrees = Math.floor( Math.random( ) * 120 ) + 60;
+                } else {
+                    apertureDegrees = 45;
+                }
+
+                const startAngle = 90 + ( apertureDegrees / 2 );
+                const solidAngle = 360 - apertureDegrees;
+
+                pacman.style.clipPath = 'none'; 
+                pacman.style.background = `conic-gradient(from ${startAngle}deg, ${config.pacmanColor} 0deg, ${config.pacmanColor} ${solidAngle}deg, transparent ${solidAngle}deg)`;
+            }
+
+            const melaninBox = document.getElementById( 'melanin-output' );
+            melaninBox.innerHTML = ''; 
+            
+            function createMelanin ( colorClass ) {
+                const m = document.createElement( 'div' );
+                m.className = 'melanin ' + colorClass;
+                
+                const jitterX = ( Math.random( ) * 60 ) - 30;
+                const jitterY = ( Math.random( ) * 60 ) - 30;
+                m.style.left = `calc(50% - 12.5px)`; 
+                m.style.top = `calc(50% - 12.5px)`;
+                m.style.transform = `translate(${jitterX}px, ${jitterY}px)`;
+                
+                melaninBox.appendChild( m );
+            }
+
+            for ( let i = 0; i < config.numBlackMelanin; i++ ) {
+                createMelanin( 'black' );
+            }
+            for ( let i = 0; i < config.numYellowMelanin; i++ ) {
+                createMelanin( 'yellow' );
+            }
+
+            const hairs = document.querySelectorAll( '.hair' );
+            hairs.forEach( ( hairElement ) => {
+                hairElement.style.backgroundColor = config.hairColor;
+            } );
+        }
+
+        window.onload = initializeSimulator;
+
+    </script>
+</body>
+</html>
